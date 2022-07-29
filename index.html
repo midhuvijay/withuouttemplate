@@ -1,0 +1,227 @@
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    /*Main Data Table */
+    .mainTable {
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    #table {
+        margin: 5px auto;
+    }
+
+    table tr:not(:first-child) {
+        cursor: pointer;
+        transition: all .25s ease-in-out;
+    }
+
+    table tr:not(:first-child):hover {
+        background-color: #ddd;
+    }
+
+    table {
+        width: 60%;
+        border-collapse: collapse;
+        text-align: center;
+    }
+
+    tr:nth-child(odd) {
+        background-color: lightgray;
+    }
+
+    /*Data Update Button */
+    .updateBtn {
+        text-align: center;
+    }
+
+    .updateBtn button {
+        background-color: red;
+        padding: 5px 10px;
+        border: 1px solid black;
+        color: white;
+        margin: 10px 0;
+        border-radius: 5px;
+    }
+
+    .updateBtn button:hover {
+        background: lightgray;
+        color: black;
+        transition: .5s;
+    }
+
+    /*Data Update Table*/
+    .editTable {
+        display: none;
+        padding-top: 20px;
+        width: 30%;
+        margin: 0 auto;
+    }
+
+    .left {
+        float: left;
+    }
+
+    .right {
+        float: right;
+    }
+
+    .editRowBtn {
+        background-color: #0DC143;
+        color: white;
+        border: 1px solid black;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+
+    .editRowBtn:hover {
+        background-color: lightgray;
+        color: black;
+        transition: .5s;
+    }
+</style>
+
+
+<button style="float: right; margin-right: 50px;;" onclick="redirect()">ADD +</button>
+<div class="mainTable">
+    <table class="table table-striped" id="table">
+        <tr class="bg-info">
+            <!-- <th>_id</th> -->
+            <th>firstname</th>
+            <th>lastname</th>
+            <th>email</th>
+            <th>edit</th>
+            <th>delete</th>
+        </tr>
+
+        <tbody id="myTable">
+
+        </tbody>
+    </table>
+</div>
+<!-- Update Button -->
+<div class="updateBtn">
+    <button onclick="editTableDisplay()">Update data</button>
+</div>
+
+<!-- Edit table -->
+<div class="editTable">
+
+    <div class="left">First Name: </div>
+    <div class="right"><input type="text" name="firstname" id="fname"></div><br><br>
+    <div class="left">Last Name: </div>
+    <div class="right"><input type="text" name="lastname" id="lname"></div><br><br>
+    <div class="left">Email: </div>
+    <div class="right"><input type="text" name="email" id="email"></div><br><br>
+    <input type="hidden" id="slid">
+    <input class="editRowBtn" type="submit" onclick="editmyFunction3()" value="Update">
+
+</div>
+<script type="text/javascript">
+    const rankingsBody = document.querySelectorAll('#rankings-table > tbody');
+    function myFunction() {
+        //alert("sdg");
+        const request = new XMLHttpRequest();
+        request.open("get", "http://localhost:5000/list");
+        request.onload = () => {
+
+            try {
+                //alert("sdg1");
+                const json = JSON.parse(request.responseText);
+                populateValue(json);
+            }
+            catch (e) {
+                //console.warn("request not send")
+
+            }
+        }
+        request.send();
+    }
+
+    function populateValue(json) {
+        var table = document.getElementById('myTable')
+
+        for (var i = 0; i < json.length; i++) {
+            var row = `<tr>
+							
+							<td>${json[i].firstname}</td>
+							<td>${json[i].lastname}</td>
+                            <td>${json[i].email}</td>
+                            <td><button type="button" class="btn btn-warning" " id="${json[i].email}/${json[i].lastname}/${json[i].firstname}/${json[i]._id}" onclick="popupeditmyFunction2(this)">Edit</button></td>
+                            <td><button type="button" class="btn btn-warning " id="${json[i].email}" onclick="deletemyFunction1(this)">Delete</button></td>
+					  </tr>`
+            table.innerHTML += row
+
+
+        }
+
+    }
+    function redirect() {
+        document.location.href = "http://localhost:5000/add";
+    }
+    function editmyFunction3() {
+        var email = document.getElementById("email").value;
+        var fname = document.getElementById("fname").value;
+        var lname = document.getElementById("lname").value;
+        var id = document.getElementById("slid").value;
+        window.location.reload();
+        // alert(id);
+        const request = new XMLHttpRequest();
+        request.open("get", "http://localhost:5000/update/id/" + id + "/" + fname + "/" + lname + "/" + email);
+        request.onload = () => {
+
+
+            try {
+                alert("hai");
+
+                window.location.reload();
+            }
+            catch (e) {
+                //console.warn("request not send")
+
+            }
+        }
+        request.send();
+    }
+    function deletemyFunction1(obj) {
+        var id = obj.id;
+        //alert(id);
+        document.getElementById("myTable").deleteRow(0);
+        const request = new XMLHttpRequest();
+        request.open("get", "http://localhost:5000/delete/id/" + id);
+        request.onload = () => {
+
+            try {
+                alert(request.responseText);
+
+
+            }
+            catch (e) {
+                //console.warn("request not send")
+
+            }
+        }
+        request.send();
+    }
+    function popupeditmyFunction2(obj) {
+        var fields = obj.id.split('/');
+        var email = fields[0];
+        var lname = fields[1];
+        var fname = fields[2];
+        var slid = fields[3];
+        document.getElementById("email").value = email;
+        document.getElementById("lname").value = lname;
+        document.getElementById("fname").value = fname;
+        document.getElementById("slid").value = slid;
+
+    }
+
+    // Data Update Table Here
+    function editTableDisplay() {
+        document.querySelector('.editTable').setAttribute('style', 'display: block;')
+    }
+    document.addEventListener("DOMContentLoaded", () => { myFunction(); })
+</script>
